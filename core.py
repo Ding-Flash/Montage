@@ -7,7 +7,7 @@ from PIL import Image
 def load_image( image_path ):
     try:
         image = Image.open(image_path)
-        image = np.array()
+        image = np.array(image)
         return image
     except:
         print('open', image_path, 'error')
