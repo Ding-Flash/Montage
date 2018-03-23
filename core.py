@@ -36,10 +36,10 @@ def cos_similar(x, y):
         xy += x[i] * y[i]
     return xy / (sqrt(xx) * sqrt(yy))
 
-def deal_image_repo( repo_path, block ):
-    vectors = np.zeros((20, 64), dtype=int)
+def deal_image_repo( repo_path, block, batch ):
+    vectors = np.zeros((batch, 64), dtype=int)
     images = []
-    for i in range(20):
+    for i in range(batch):
         image = Image.open(repo_path + '/repo'+str(i)+'.jpg')
         image = np.array(image.resize(block), dtype=int)
         images.append(image)
@@ -47,13 +47,12 @@ def deal_image_repo( repo_path, block ):
     return vectors, images
 
 
-def replace( image, index, block ):
+def replace( image, index, y, images, block, batch ):
     x = np.zeros((1, 64))
     deal_image(0, image[ index[0] : index[1],
                          index[2] : index[3], : ], x)
-    y, images = deal_image_repo('./image', block)
     max_cos, idx = 0.0, 0
-    for i in range(20):
+    for i in range(batch):
         temp = cos_similar(x[0, :], y[i, :])
         if temp > max_cos:
             max_cos = temp
@@ -62,24 +61,25 @@ def replace( image, index, block ):
     image[ index[0] : index[1],
            index[2] : index[3], : ] =  images[idx]
 
-def split_image( image_path, block ):
+def split_image( image_path, block, batch ):
     image = load_image(image_path)
     print(image.shape)
     h, w = image.shape[:2]
+    y, images = deal_image_repo('./image', block, batch)
     for i in range(0, h, block[0]):
         for j in range(0, w, block[1]):
-            if i + block[0] >= h: continue
-            if j + block[1] >= w: continue
+            if i + block[0] > h: continue
+            if j + block[1] > w: continue
             index = ( i, i + block[0], 
                       j, j + block[1])
-            replace(image, index, block)
+            replace(image, index, y, images, block, batch)
     image = np.array(image, dtype=np.uint8)
     image = Image.fromarray(image)
     image.show()
     return image
     
 
-# if __name__ == '__main__':
-    
+if __name__ == '__main__':
+    split_image('./test.jpg', (5,5), 40)
     
 #     image = load_image('./img.jpg')
