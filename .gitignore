@@ -99,3 +99,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# vscode setting file
+.vscode/
+
+# pycharm
+.idea/
